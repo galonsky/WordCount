@@ -2,6 +2,15 @@ import sublime, sublime_plugin, re
 import time
 import threading, thread
 
+# from source of http://www.wordstopages.com/
+def num_pages(words):
+	size = 1.0
+	font = 0.946
+	spacing = 1.644
+	pages = (1/size)*(font*1)*words*spacing/450;
+	pages = round(pages*10)/10; 
+	return pages
+
 s = sublime.load_settings('WordCount.sublime-settings')
 
 class Pref:
@@ -67,6 +76,8 @@ class WordCount(sublime_plugin.EventListener):
 		m = int(word_count / Pref.readtime_wpm)
 		s = int(word_count % Pref.readtime_wpm / (Pref.readtime_wpm / 60))
 
+		pages = num_pages(word_count)
+
 		# Estimated Reading Time
 		if Pref.enable_readtime and s >= 1:
 			readTime = " ~%dm, %ds reading time" % (m, s)
@@ -79,12 +90,12 @@ class WordCount(sublime_plugin.EventListener):
 			if word_count == 1:
 				view.set_status('WordCount', "1 Word selected")
 			else:
-				view.set_status('WordCount', "%s Words selected%s" % (word_count, readTime))
+				view.set_status('WordCount', "%s Words selected%s, %.1f pages" % (word_count, readTime, pages))
 		else:
 			if word_count == 1:
 				view.set_status('WordCount', "1 Word")
 			else:
-				view.set_status('WordCount', "%s Words%s" % (word_count, readTime))
+				view.set_status('WordCount', "%s Words%s, %.1f pages" % (word_count, readTime, pages))
 
 class WordCountThread(threading.Thread):
 
